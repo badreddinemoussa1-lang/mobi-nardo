@@ -1,8 +1,13 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
+using MotoMobiNardo.Data;
+using Npgsql;
 using System.Globalization;
 using System.Threading.RateLimiting;
 
@@ -44,17 +49,34 @@ builder.Services.AddRateLimiter(options =>
             });
     });
 });
-var configuredDatabaseDirectory = Environment.GetEnvironmentVariable("MOBI_NARDO_DATA_PATH");
-var databaseDirectory = string.IsNullOrWhiteSpace(configuredDatabaseDirectory)
-    ? Path.Combine(builder.Environment.ContentRootPath, "App_Data")
-    : Path.GetFullPath(configuredDatabaseDirectory);
 var demoMode = string.Equals(builder.Configuration["MOBI_NARDO_DEMO_MODE"], "true", StringComparison.OrdinalIgnoreCase);
-if (demoMode && !string.Equals(Path.GetFileName(databaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)), "mobi-nardo-demo", StringComparison.OrdinalIgnoreCase))
-    throw new InvalidOperationException("Demo mode requires a separate data directory named 'mobi-nardo-demo'. Use tools/Start-Demo.ps1 so demo records cannot mix with live data.");
-Directory.CreateDirectory(databaseDirectory);
-var databasePath = Path.Combine(databaseDirectory, "moto-mobi-nardo.db");
-builder.Services.AddDbContext<MotoMobiNardo.Data.MotoMobiDbContext>(options =>
-    options.UseSqlite($"Data Source={databasePath};Foreign Keys=True;"));
+var postgresConnection = builder.Configuration["DATABASE_URL"]
+    ?? builder.Configuration["POSTGRES_URL"]
+    ?? builder.Configuration.GetConnectionString("Postgres");
+var runningOnVercel = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("VERCEL"));
+if (runningOnVercel && string.IsNullOrWhiteSpace(postgresConnection))
+    throw new InvalidOperationException("Configure a durable PostgreSQL DATABASE_URL integration before deploying this app to Vercel.");
+
+if (!string.IsNullOrWhiteSpace(postgresConnection))
+{
+    var connectionString = NormalizePostgresConnectionString(postgresConnection);
+    builder.Services.AddDbContext<PostgresMotoMobiDbContext>(options => options.UseNpgsql(connectionString));
+    builder.Services.AddScoped<MotoMobiDbContext>(services => services.GetRequiredService<PostgresMotoMobiDbContext>());
+    builder.Services.AddDataProtection().PersistKeysToDbContext<PostgresMotoMobiDbContext>();
+}
+else
+{
+    var configuredDatabaseDirectory = Environment.GetEnvironmentVariable("MOBI_NARDO_DATA_PATH");
+    var databaseDirectory = string.IsNullOrWhiteSpace(configuredDatabaseDirectory)
+        ? Path.Combine(builder.Environment.ContentRootPath, "App_Data")
+        : Path.GetFullPath(configuredDatabaseDirectory);
+    if (demoMode && !string.Equals(Path.GetFileName(databaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)), "mobi-nardo-demo", StringComparison.OrdinalIgnoreCase))
+        throw new InvalidOperationException("Demo mode requires a separate data directory named 'mobi-nardo-demo'. Use tools/Start-Demo.ps1 so demo records cannot mix with live data.");
+    Directory.CreateDirectory(databaseDirectory);
+    var databasePath = Path.Combine(databaseDirectory, "moto-mobi-nardo.db");
+    builder.Services.AddDbContext<MotoMobiDbContext>(options =>
+        options.UseSqlite($"Data Source={databasePath};Foreign Keys=True;"));
+}
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -112,6 +134,14 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+var forwardedHeaders = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+forwardedHeaders.KnownIPNetworks.Clear();
+forwardedHeaders.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeaders);
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -119,6 +149,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseHttpsRedirection();
 }
+
+app.MapGet("/health", () => Results.Json(new { status = "ok" })).AllowAnonymous();
 
 app.UseStaticFiles();
 app.UseRequestLocalization(new RequestLocalizationOptions()
@@ -140,6 +172,30 @@ app.MapControllerRoute(
 app.Run();
 
 static bool appEnvironmentIsDevelopment(IWebHostEnvironment environment) => environment.IsDevelopment();
+
+static string NormalizePostgresConnectionString(string value)
+{
+    if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) ||
+        (uri.Scheme != "postgres" && uri.Scheme != "postgresql"))
+        return value;
+
+    var separator = uri.UserInfo.IndexOf(':');
+    var username = separator < 0 ? uri.UserInfo : uri.UserInfo[..separator];
+    var password = separator < 0 ? "" : uri.UserInfo[(separator + 1)..];
+    var settings = new NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.IsDefaultPort ? 5432 : uri.Port,
+        Database = Uri.UnescapeDataString(uri.AbsolutePath.TrimStart('/')),
+        Username = Uri.UnescapeDataString(username),
+        Password = Uri.UnescapeDataString(password),
+        SslMode = SslMode.Require,
+        Timeout = 15,
+        CommandTimeout = 30,
+        MaxPoolSize = 5
+    };
+    return settings.ConnectionString;
+}
 
 static List<MotoMobiNardo.Models.Motorcycle> CreateDemoMotorcycles() =>
 [

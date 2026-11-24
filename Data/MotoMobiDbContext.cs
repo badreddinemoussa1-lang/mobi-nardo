@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using MotoMobiNardo.Models;
 
 namespace MotoMobiNardo.Data;
 
-public class MotoMobiDbContext(DbContextOptions<MotoMobiDbContext> options) : IdentityDbContext(options)
+public class MotoMobiDbContext(DbContextOptions options) : IdentityDbContext(options), IDataProtectionKeyContext
 {
     public DbSet<Motorcycle> Motorcycles => Set<Motorcycle>();
     public DbSet<Customer> Customers => Set<Customer>();
@@ -12,6 +13,8 @@ public class MotoMobiDbContext(DbContextOptions<MotoMobiDbContext> options) : Id
     public DbSet<AcquisitionInquiry> AcquisitionInquiries => Set<AcquisitionInquiry>();
     public DbSet<CustomerInquiry> CustomerInquiries => Set<CustomerInquiry>();
     public DbSet<BusinessProfile> BusinessProfiles => Set<BusinessProfile>();
+    public DbSet<MotorcyclePhoto> MotorcyclePhotos => Set<MotorcyclePhoto>();
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,5 +32,11 @@ public class MotoMobiDbContext(DbContextOptions<MotoMobiDbContext> options) : Id
         modelBuilder.Entity<CustomerInquiry>().HasIndex(i => i.Phone);
         modelBuilder.Entity<CustomerInquiry>().HasOne<Motorcycle>().WithMany().HasForeignKey(i => i.MotorcycleId).OnDelete(DeleteBehavior.SetNull);
         modelBuilder.Entity<BusinessProfile>().HasIndex(p => p.Id);
+        modelBuilder.Entity<Motorcycle>()
+            .HasOne(m => m.Photo)
+            .WithOne()
+            .HasForeignKey<MotorcyclePhoto>(p => p.MotorcycleId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<MotorcyclePhoto>().HasKey(p => p.MotorcycleId);
     }
 }

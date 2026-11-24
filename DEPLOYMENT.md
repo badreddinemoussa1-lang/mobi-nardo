@@ -1,5 +1,17 @@
 # Déploiement gratuit Azure App Service (F1)
 
+## Vercel (conteneur ASP.NET Core)
+
+Le dépôt inclut `Dockerfile.vercel` pour déployer l’application .NET 10 sur le runtime Container de Vercel. Les conteneurs Vercel sont sans stockage persistant; l’application exige donc une base PostgreSQL configurée avec l’intégration Marketplace de Vercel (`DATABASE_URL` ou `POSTGRES_URL`). Les migrations PostgreSQL s’exécutent au démarrage. Les photos téléversées et les clés de protection des cookies sont conservées dans PostgreSQL.
+
+1. Importer le dépôt GitHub `badreddinemoussa1-lang/mobi-nardo` dans Vercel et autoriser l’accès au dépôt.
+2. Ajouter une base PostgreSQL gérée depuis le Marketplace Vercel et vérifier que `DATABASE_URL` (ou `POSTGRES_URL`) est disponible dans l’environnement **Production**.
+3. Définir `MOBI_NARDO_BOOTSTRAP_KEY` dans les variables d’environnement Vercel avec une valeur secrète longue et aléatoire. Ne pas la mettre dans le dépôt ni dans le Dockerfile.
+4. Déployer en production, puis ouvrir `/Account/Setup?key=...` en remplaçant `...` par la clé et créer le compte propriétaire directement dans le navigateur.
+5. Après la création du compte, supprimer `MOBI_NARDO_BOOTSTRAP_KEY` des variables Vercel et redéployer.
+
+Le téléversement de photo est limité à 4 Mo pour rester sous la limite d’environ 4,5 Mo du corps de requête Vercel. Les coûts et quotas du runtime conteneur et de la base PostgreSQL dépendent des offres actives dans les comptes Vercel et Marketplace; les vérifier avant activation. Aucun fichier SQLite local n’est envoyé.
+
 Cette procédure publie la vitrine MOBI NARDO sur une URL `azurewebsites.net`. Le site tourne dans Azure, donc le PC local peut être éteint.
 
 ## Limites du forfait gratuit

@@ -25,7 +25,7 @@ public class MotorcyclesController(MotoMobiDbContext database, IWebHostEnvironme
         if (!ModelState.IsValid) return View(motorcycle);
         if (photo is not null)
         {
-            motorcycle.PhotoFileName = await SavePhotoAsync(photo, cancellationToken);
+            motorcycle.PhotoFileName = await SavePhotoAsync(photo, motorcycle, cancellationToken);
             if (!ModelState.IsValid) return View(motorcycle);
         }
         database.Motorcycles.Add(motorcycle);
@@ -45,15 +45,16 @@ public class MotorcyclesController(MotoMobiDbContext database, IWebHostEnvironme
     {
         if (id != motorcycle.Id) return BadRequest();
         if (!ModelState.IsValid) return View(motorcycle);
-        var current = database.Motorcycles.Find(id);
+        var current = database.Motorcycles.Include(m => m.Photo).SingleOrDefault(m => m.Id == id);
         if (current is null) return NotFound();
         ValidateOptions(motorcycle);
         if (!ModelState.IsValid) return View(motorcycle);
         if (photo is not null)
         {
-            var replacement = await SavePhotoAsync(photo, cancellationToken);
+            var replacement = await SavePhotoAsync(photo, motorcycle, cancellationToken);
             if (!ModelState.IsValid) return View(motorcycle);
             current.PhotoFileName = replacement;
+            current.Photo = motorcycle.Photo;
         }
         motorcycle.PhotoFileName = current.PhotoFileName;
         current.Brand = motorcycle.Brand;
@@ -83,12 +84,12 @@ public class MotorcyclesController(MotoMobiDbContext database, IWebHostEnvironme
             ModelState.AddModelError(nameof(motorcycle.Condition), "Choisissez un état valide.");
     }
 
-    private async Task<string?> SavePhotoAsync(IFormFile photo, CancellationToken cancellationToken)
+    private async Task<string?> SavePhotoAsync(IFormFile photo, Motorcycle motorcycle, CancellationToken cancellationToken)
     {
-        const long maxBytes = 5 * 1024 * 1024;
+        const long maxBytes = 4 * 1024 * 1024;
         if (photo.Length == 0 || photo.Length > maxBytes)
         {
-            ModelState.AddModelError(nameof(Motorcycle.PhotoFileName), "Choisissez une photo JPG, PNG ou WebP de 5 Mo maximum.");
+            ModelState.AddModelError(nameof(Motorcycle.PhotoFileName), "Choisissez une photo JPG, PNG ou WebP de 4 Mo maximum.");
             return null;
         }
 
@@ -118,13 +119,21 @@ public class MotorcyclesController(MotoMobiDbContext database, IWebHostEnvironme
             }
         }
 
+        var fileName = $"{Guid.NewGuid():N}{extension}";
+        if (database.Database.IsNpgsql())
+        {
+            await using var imageData = new MemoryStream();
+            await photo.CopyToAsync(imageData, cancellationToken);
+            motorcycle.Photo = new MotorcyclePhoto { ContentType = mime, Data = imageData.ToArray() };
+            return fileName;
+        }
+
         var dataDirectory = Environment.GetEnvironmentVariable("MOBI_NARDO_DATA_PATH");
         dataDirectory = string.IsNullOrWhiteSpace(dataDirectory)
             ? Path.Combine(environment.ContentRootPath, "App_Data")
             : Path.GetFullPath(dataDirectory);
         var uploadDirectory = Path.Combine(dataDirectory, "uploads");
         Directory.CreateDirectory(uploadDirectory);
-        var fileName = $"{Guid.NewGuid():N}{extension}";
         var destination = Path.Combine(uploadDirectory, fileName);
         await using var output = System.IO.File.Create(destination);
         await photo.CopyToAsync(output, cancellationToken);

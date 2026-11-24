@@ -12,7 +12,7 @@ Dans **Profil du showroom**, renseigner nom, ville, adresse, téléphone, WhatsA
 
 ## Ajouter ou modifier une moto
 
-Dans **Catalogue motos**, saisir marque, modèle, année, cylindrée, prix en DH, stock, catégorie (moto/scooter), état (neuve/occasion), description et photo autorisée JPG/PNG/WebP de 5 Mo maximum. Une moto dont le stock est nul n’apparaît pas dans le catalogue public. Après une modification, vérifier la vitrine.
+Dans **Catalogue motos**, saisir marque, modèle, année, cylindrée, prix en DH, stock, catégorie (moto/scooter), état (neuve/occasion), description et photo autorisée JPG/PNG/WebP de 4 Mo maximum. Une moto dont le stock est nul n’apparaît pas dans le catalogue public. Après une modification, vérifier la vitrine.
 
 ## Répondre aux demandes du site
 

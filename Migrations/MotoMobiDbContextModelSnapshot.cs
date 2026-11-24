@@ -17,6 +17,23 @@ namespace MotoMobiNardo.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.15");
 
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -490,6 +507,25 @@ namespace MotoMobiNardo.Migrations
                     b.ToTable("Motorcycles");
                 });
 
+            modelBuilder.Entity("MotoMobiNardo.Models.MotorcyclePhoto", b =>
+                {
+                    b.Property<int>("MotorcycleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+
+                    b.HasKey("MotorcycleId");
+
+                    b.ToTable("MotorcyclePhotos");
+                });
+
             modelBuilder.Entity("MotoMobiNardo.Models.Sale", b =>
                 {
                     b.Property<int>("Id")
@@ -597,6 +633,15 @@ namespace MotoMobiNardo.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
+            modelBuilder.Entity("MotoMobiNardo.Models.MotorcyclePhoto", b =>
+                {
+                    b.HasOne("MotoMobiNardo.Models.Motorcycle", null)
+                        .WithOne("Photo")
+                        .HasForeignKey("MotoMobiNardo.Models.MotorcyclePhoto", "MotorcycleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MotoMobiNardo.Models.Sale", b =>
                 {
                     b.HasOne("MotoMobiNardo.Models.Customer", null)
@@ -610,6 +655,11 @@ namespace MotoMobiNardo.Migrations
                         .HasForeignKey("MotorcycleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MotoMobiNardo.Models.Motorcycle", b =>
+                {
+                    b.Navigation("Photo");
                 });
 #pragma warning restore 612, 618
         }

@@ -38,6 +38,8 @@ public class Motorcycle
     [Display(Name = "Photo enregistrée")]
     public string? PhotoFileName { get; set; }
 
+    public MotorcyclePhoto? Photo { get; set; }
+
     [Required, StringLength(24)]
     [Display(Name = "Catégorie")]
     public string Category { get; set; } = MotorcycleCategories.Motorcycle;
@@ -47,6 +49,17 @@ public class Motorcycle
     public string Condition { get; set; } = MotorcycleConditions.Used;
 
     public string FullName => $"{Brand} {Model}";
+}
+
+public sealed class MotorcyclePhoto
+{
+    public int MotorcycleId { get; set; }
+
+    [Required, StringLength(64)]
+    public string ContentType { get; set; } = "image/jpeg";
+
+    [Required]
+    public byte[] Data { get; set; } = [];
 }
 
 public static class MotorcycleCategories

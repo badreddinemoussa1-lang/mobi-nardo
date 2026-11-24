@@ -4,7 +4,7 @@
 
 ## Hébergement public sans PC local
 
-Consultez [DEPLOYMENT.md](DEPLOYMENT.md) et `deploy/Deploy-AzureFree.ps1` pour préparer Azure App Service F1 avec base SQLite et photos dans `/home/data`. Le compte Azure doit être authentifié avec `az login`. F1 est limité et n’offre pas de garantie de disponibilité; le domaine personnalisé doit être configuré sur une offre compatible et n’est pas modifié par ce script.
+Consultez [DEPLOYMENT.md](DEPLOYMENT.md) pour les instructions Vercel et Azure App Service. Le déploiement Vercel utilise le `Dockerfile.vercel` et une base PostgreSQL gérée; Azure F1 utilise SQLite et les photos dans `/home/data`. Les offres gratuites et les quotas dépendent du fournisseur et n’offrent pas de garantie de disponibilité.
 
 Application web de gestion d’une concession moto, réalisée en ASP.NET Core MVC et .NET 10.
 
@@ -22,7 +22,7 @@ Au premier lancement, ouvrez `/Account/Setup` pour créer le compte propriétair
 
 La page d’accueil affiche les motos dont le stock est supérieur à zéro. Les visiteurs peuvent filtrer les annonces, ouvrir WhatsApp ou envoyer une demande structurée pour disponibilité, prix, rappel, visite, financement ou demande de réservation. Leur accord de contact est requis. Les demandes sont limitées en fréquence, protégées contre les soumissions intersites et visibles dans « Prospects web ».
 
-Le profil initial du concessionnaire est Bouskoura. Modifiez le nom, ville, contacts, logo, couleurs, carte, horaires et réseaux depuis **Profil du showroom** dans l’administration. Le numéro WhatsApp doit inclure l’indicatif international (`+212…`). Ajoutez une moto, indiquez sa catégorie et son état, son prix et son stock, puis téléversez une photo autorisée en JPG, PNG ou WebP (5 Mo maximum).
+Le profil initial du concessionnaire est Bouskoura. Modifiez le nom, ville, contacts, logo, couleurs, carte, horaires et réseaux depuis **Profil du showroom** dans l’administration. Le numéro WhatsApp doit inclure l’indicatif international (`+212…`). Ajoutez une moto, indiquez sa catégorie et son état, son prix et son stock, puis téléversez une photo autorisée en JPG, PNG ou WebP (4 Mo maximum).
 
 Les références de marché externes sont dans `MarketReferences` du même fichier. Elles restent séparées du stock géré et doivent être vérifiées régulièrement; elles ne représentent pas des motos vendues par la concession.
 
