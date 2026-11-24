@@ -1,0 +1,21 @@
+@model MotoMobiNardo.Models.SaleInvoiceViewModel
+@{ ViewData["Title"] = $"Facture {Model.Sale.InvoiceNumber}"; ViewData["PageHeading"] = "Facture"; Layout = "_InvoiceLayout"; }
+<div class="receipt-toolbar no-print"><a asp-action="Index" class="btn btn-light">← Retour aux ventes</a><button class="btn btn-primary" type="button" onclick="window.print()">Imprimer / Enregistrer en PDF</button></div>
+<article class="receipt-sheet invoice-sheet">
+    @if (Model.Sale.IsCancelled) { <div class="receipt-cancelled">FACTURE ANNULÉE · @Model.Sale.CancelledAt?.ToString("dd/MM/yyyy HH:mm")</div> }
+    @if (!Model.Business.HasInvoiceInformation) { <div class="invoice-draft">APERÇU À COMPLÉTER · Renseigner les identifiants fiscaux et le régime TVA avant émission officielle.</div> }
+    <header class="receipt-header"><div><div class="receipt-brand"><span class="brand-icon">M</span><span>@Model.Business.Name<small>@Model.Business.City</small></span></div><div class="receipt-contact">
+        @if (!string.IsNullOrWhiteSpace(Model.Business.Address)) { <div>@Model.Business.Address</div> }
+        @if (!string.IsNullOrWhiteSpace(Model.Business.Phone)) { <div>Tél. : @Model.Business.Phone</div> }
+        @if (!string.IsNullOrWhiteSpace(Model.Business.Email)) { <div>@Model.Business.Email</div> }
+        <div>IF : @(string.IsNullOrWhiteSpace(Model.Business.FiscalIdentifier) ? "À renseigner" : Model.Business.FiscalIdentifier)</div>
+        <div>Taxe professionnelle : @(string.IsNullOrWhiteSpace(Model.Business.ProfessionalTaxNumber) ? "À renseigner" : Model.Business.ProfessionalTaxNumber)</div>
+        <div>ICE : @(string.IsNullOrWhiteSpace(Model.Business.Ice) ? "À renseigner" : Model.Business.Ice)</div>
+        @if (!string.IsNullOrWhiteSpace(Model.Business.CommercialRegister)) { <div>RC : @Model.Business.CommercialRegister</div> }
+    </div></div><div class="receipt-title"><span>FACTURE</span><strong>@Model.Sale.InvoiceNumber</strong><small>Date : @Model.Sale.SoldAt.ToString("dd MMMM yyyy")</small><small>Référence vente : @Model.Sale.Reference</small></div></header>
+    <div class="receipt-rule"></div>
+    <section class="receipt-customer"><span>FACTURÉ À</span><strong>@Model.Customer.FullName</strong><small>@Model.Customer.Phone</small>@if (!string.IsNullOrWhiteSpace(Model.Customer.Email)) { <small>@Model.Customer.Email</small> }@if (!string.IsNullOrWhiteSpace(Model.Customer.Address)) { <small>@Model.Customer.Address</small> }</section>
+    <table class="receipt-table"><thead><tr><th>DÉSIGNATION</th><th>QTÉ</th><th>PRIX UNITAIRE</th><th class="right">MONTANT</th></tr></thead><tbody><tr><td><strong>@Model.Motorcycle.Brand @Model.Motorcycle.Model</strong><small>@Model.Motorcycle.Year · @Model.Motorcycle.EngineCc cc</small></td><td>@Model.Sale.Quantity</td><td>@Model.Sale.UnitPrice.ToString("N2") @Model.Business.Currency</td><td class="right">@((Model.Sale.UnitPrice * Model.Sale.Quantity).ToString("N2")) @Model.Business.Currency</td></tr></tbody></table>
+    <div class="receipt-total"><div><span>Sous-total</span><strong>@((Model.Sale.UnitPrice * Model.Sale.Quantity).ToString("N2")) @Model.Business.Currency</strong></div>@if (Model.Sale.Discount > 0) { <div><span>Remise</span><strong>− @Model.Sale.Discount.ToString("N2") @Model.Business.Currency</strong></div> }<div><span>TVA / régime fiscal</span><strong>@(string.IsNullOrWhiteSpace(Model.Business.TaxRegime) ? "À renseigner" : Model.Business.TaxRegime)</strong></div><div class="grand-total"><span>Total de la vente</span><strong>@Model.Sale.Total.ToString("N2") @Model.Business.Currency</strong></div></div>
+    <footer class="receipt-footer"><strong>Merci pour votre confiance.</strong><span>Facture @Model.Sale.InvoiceNumber · @Model.Business.Name</span></footer>
+</article>

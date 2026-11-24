@@ -1,0 +1,14 @@
+@model MotoMobiNardo.Models.Motorcycle
+<div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+<div class="form-grid">
+    <div class="field"><label asp-for="Brand"></label><input asp-for="Brand" placeholder="Ex. Yamaha" /><span asp-validation-for="Brand"></span></div>
+    <div class="field"><label asp-for="Model"></label><input asp-for="Model" placeholder="Ex. MT-07" /><span asp-validation-for="Model"></span></div>
+    <div class="field"><label asp-for="Year"></label><input asp-for="Year" type="number" /><span asp-validation-for="Year"></span></div>
+    <div class="field"><label asp-for="EngineCc"></label><input asp-for="EngineCc" type="number" /><span asp-validation-for="EngineCc"></span></div>
+    <div class="field"><label asp-for="Price"></label><div class="input-suffix"><input asp-for="Price" type="number" step="0.01" /><span>DH</span></div><span asp-validation-for="Price"></span></div>
+    <div class="field"><label asp-for="Stock"></label><input asp-for="Stock" type="number" /><span asp-validation-for="Stock"></span></div>
+    <div class="field"><label asp-for="Category"></label><select asp-for="Category"><option value="Moto">Moto</option><option value="Scooter">Scooter</option></select><span asp-validation-for="Category"></span></div>
+    <div class="field"><label asp-for="Condition"></label><select asp-for="Condition"><option value="Neuve">Neuve</option><option value="Occasion">Occasion</option></select><span asp-validation-for="Condition"></span></div>
+    <div class="field full-field"><label asp-for="Description"></label><textarea asp-for="Description" rows="3" placeholder="Quelques mots sur cette moto…"></textarea><span asp-validation-for="Description"></span></div>
+    <div class="field full-field"><label for="photo">Photo du véhicule</label><input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPG, PNG ou WebP · 5 Mo maximum. Utilisez des photos autorisées par le concessionnaire.</small><span asp-validation-for="PhotoFileName"></span>@if (!string.IsNullOrWhiteSpace(Model.PhotoFileName)) { <img class="admin-bike-photo" src="@Url.Action("Photo", "Media", new { id = Model.Id })" alt="Photo actuelle de @Model.Brand @Model.Model" /> }</div>
+</div>

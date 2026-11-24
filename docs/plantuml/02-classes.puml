@@ -1,0 +1,79 @@
+@startuml
+title Diagramme de classes - Moto Mobi Nardo
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontColor #17231F
+skinparam ArrowColor #17664F
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #17664F
+  FontColor #17231F
+  ArrowColor #17664F
+}
+
+class Motorcycle {
+  +Id : int
+  +Brand : string
+  +Model : string
+  +Year : int
+  +EngineCc : int
+  +Price : decimal
+  +Stock : int
+  +Description : string
+  +FullName : string <<computed>>
+}
+
+class Customer {
+  +Id : int
+  +FullName : string
+  +Phone : string
+  +Email : string?
+  +Address : string?
+}
+
+class Sale {
+  +Id : int
+  +MotorcycleId : int <<FK>>
+  +CustomerId : int <<FK>>
+  +Quantity : int
+  +SoldAt : DateTime
+  +UnitPrice : decimal
+  +Discount : decimal
+  +IsCancelled : bool
+  +CancelledAt : DateTime?
+  +Total : decimal <<computed>>
+  +Reference : string <<computed>>
+  +InvoiceNumber : string <<computed>>
+}
+
+class DashboardViewModel {
+  +MotorcycleCount : int
+  +UnitsInStock : int
+  +CustomerCount : int
+  +Revenue : decimal
+  +RecentSales : List~Sale~
+  +LowStock : List~Motorcycle~
+}
+
+class MotoMobiDbContext {
+  +Motorcycles : DbSet~Motorcycle~
+  +Customers : DbSet~Customer~
+  +Sales : DbSet~Sale~
+}
+
+class IdentityUser {
+  +Id : string
+  +UserName : string
+  +Email : string
+  +PasswordHash : string
+  +LockoutEnabled : bool
+}
+
+Motorcycle "1" <-- "0..*" Sale : motorcycleId
+Customer "1" <-- "0..*" Sale : customerId
+MotoMobiDbContext ..> Motorcycle : persiste
+MotoMobiDbContext ..> Customer : persiste
+MotoMobiDbContext ..> Sale : persiste
+MotoMobiDbContext ..> IdentityUser : authentifie
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+title Diagramme de composants - Moto Mobi Nardo
+left to right direction
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontColor #17231F
+skinparam ArrowColor #17664F
+skinparam component {
+  BackgroundColor #FFFFFF
+  BorderColor #17664F
+  FontColor #17231F
+}
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #D5DED8
+  FontColor #17231F
+}
+
+package "Navigateur de l'administrateur" {
+  [Pages Razor MVC] as Pages
+  [CSS et Bootstrap] as Assets
+}
+
+package "Application ASP.NET Core" {
+  [Authentification Identity] as Identity
+  [Contrôleurs MVC\nAccount, Home, Motorcycles,\nCustomers, Sales] as Controllers
+  [Modèles métier\nMotorcycle, Customer, Sale] as Models
+  [MotoMobiDbContext\nEntity Framework Core] as Context
+  [appsettings.json\nProfil de l'entreprise] as Config
+}
+
+package "Persistance locale" {
+  database "SQLite\nmoto-mobi-nardo.db" as SQLite
+  [Tables Identity\nComptes et sécurité] as IdentityTables
+}
+
+Pages --> Identity : session
+Pages --> Controllers : requêtes HTTP
+Assets --> Pages : présentation
+Controllers --> Models : règles métier
+Controllers --> Context : accès aux données
+Controllers --> Config : profil
+Context --> SQLite : motos, clients, ventes
+Context --> IdentityTables : comptes
+Identity --> Context : authentification
+@enduml

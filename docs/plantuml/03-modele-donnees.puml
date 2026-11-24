@@ -1,0 +1,64 @@
+@startuml
+title Modèle de données (MCD) - Moto Mobi Nardo
+left to right direction
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontColor #17231F
+skinparam ArrowColor #17664F
+skinparam entity {
+  BackgroundColor #FFFFFF
+  BorderColor #17664F
+  FontColor #17231F
+}
+
+entity "MOTORCYCLE" as Motorcycle {
+  * Id : INTEGER <<PK>>
+  --
+  * Brand : TEXT
+  * Model : TEXT
+  * Year : INTEGER
+  * EngineCc : INTEGER
+  * Price : DECIMAL
+  * Stock : INTEGER
+  Description : TEXT
+}
+
+entity "CUSTOMER" as Customer {
+  * Id : INTEGER <<PK>>
+  --
+  * FullName : TEXT
+  * Phone : TEXT
+  Email : TEXT
+  Address : TEXT
+}
+
+entity "SALE" as Sale {
+  * Id : INTEGER <<PK>>
+  --
+  * MotorcycleId : INTEGER <<FK>>
+  * CustomerId : INTEGER <<FK>>
+  * Quantity : INTEGER
+  * SoldAt : DATETIME
+  * UnitPrice : DECIMAL
+  * Discount : DECIMAL
+  * IsCancelled : BOOLEAN
+  CancelledAt : DATETIME
+}
+
+entity "IDENTITY_USER" as IdentityUser {
+  * Id : TEXT <<PK>>
+  --
+  UserName : TEXT
+  Email : TEXT
+  PasswordHash : TEXT
+  LockoutEnabled : BOOLEAN
+}
+
+Motorcycle ||--o{ Sale : "figure dans"
+Customer ||--o{ Sale : "effectue"
+note bottom of IdentityUser
+  Comptes et sécurité gérés
+  par ASP.NET Core Identity.
+end note
+@enduml

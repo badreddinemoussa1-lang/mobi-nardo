@@ -1,0 +1,37 @@
+@model MotoMobiNardo.Models.BusinessProfile
+@{ ViewData["Title"] = "Profil du showroom"; ViewData["PageHeading"] = "Profil du showroom"; }
+<p class="page-intro">Personnalisez le site et les coordonnées visibles par les clients. Cette installation utilise une base de données séparée pour ce concessionnaire.</p>
+<section class="panel form-panel settings-panel">
+    <form asp-action="Index" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <h2>Identité</h2>
+        <div class="form-grid">
+            <div class="field"><label asp-for="Name"></label><input asp-for="Name" /><span asp-validation-for="Name"></span></div>
+            <div class="field"><label asp-for="City"></label><input asp-for="City" /><span asp-validation-for="City"></span></div>
+            <div class="field full-field"><label asp-for="Address"></label><input asp-for="Address" placeholder="Adresse complète du showroom" /><span asp-validation-for="Address"></span></div>
+            <div class="field full-field"><label asp-for="LogoUrl"></label><input asp-for="LogoUrl" type="url" placeholder="https://…" /><span asp-validation-for="LogoUrl"></span></div>
+            <div class="field"><label asp-for="PrimaryColor"></label><input asp-for="PrimaryColor" type="color" /><span asp-validation-for="PrimaryColor"></span></div>
+            <div class="field"><label asp-for="SecondaryColor"></label><input asp-for="SecondaryColor" type="color" /><span asp-validation-for="SecondaryColor"></span></div>
+        </div>
+        <h2>Contact et horaires</h2>
+        <div class="form-grid">
+            <div class="field"><label asp-for="Phone"></label><input asp-for="Phone" type="tel" placeholder="+212…" /><span asp-validation-for="Phone"></span></div>
+            <div class="field"><label asp-for="WhatsApp"></label><input asp-for="WhatsApp" type="tel" placeholder="+212…" /><span asp-validation-for="WhatsApp"></span></div>
+            <div class="field"><label asp-for="Email"></label><input asp-for="Email" type="email" /><span asp-validation-for="Email"></span></div>
+            <div class="field"><label asp-for="Currency"></label><input asp-for="Currency" /><span asp-validation-for="Currency"></span></div>
+            <div class="field"><label asp-for="OpeningHours"></label><input asp-for="OpeningHours" placeholder="Lun–Sam, 09:00–19:00" /><span asp-validation-for="OpeningHours"></span></div>
+            <div class="field"><label asp-for="GoogleMapsUrl"></label><input asp-for="GoogleMapsUrl" type="url" placeholder="https://maps.google.com/…" /><span asp-validation-for="GoogleMapsUrl"></span></div>
+        </div>
+        <h2>Réseaux sociaux</h2>
+        <div class="form-grid">
+            <div class="field"><label asp-for="InstagramUrl"></label><input asp-for="InstagramUrl" type="url" /><span asp-validation-for="InstagramUrl"></span></div>
+            <div class="field"><label asp-for="TikTokUrl"></label><input asp-for="TikTokUrl" type="url" /><span asp-validation-for="TikTokUrl"></span></div>
+            <div class="field"><label asp-for="FacebookUrl"></label><input asp-for="FacebookUrl" type="url" /><span asp-validation-for="FacebookUrl"></span></div>
+            <div class="field"><label asp-for="OfficialWebsiteUrl"></label><input asp-for="OfficialWebsiteUrl" type="url" placeholder="https://…" /><span asp-validation-for="OfficialWebsiteUrl"></span></div>
+            <div class="field"><label asp-for="LiveCatalogUrl"></label><input asp-for="LiveCatalogUrl" type="url" placeholder="https://…" /><span asp-validation-for="LiveCatalogUrl"></span></div>
+        </div>
+        <p class="info-note">Le numéro WhatsApp doit inclure l’indicatif international (+212). Les horaires, adresse et liens apparaissent sur le site seulement lorsqu’ils sont renseignés.</p>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">Enregistrer le profil ↗</button></div>
+    </form>
+</section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,45 @@
+@startuml
+title Diagramme de séquence - Enregistrer une vente
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontColor #17231F
+skinparam ArrowColor #17664F
+skinparam sequence {
+  ParticipantBackgroundColor #FFFFFF
+  ParticipantBorderColor #17664F
+  ParticipantFontColor #17231F
+  LifeLineBorderColor #D5DED8
+  ActorBorderColor #17664F
+  ActorFontColor #17231F
+  GroupBackgroundColor #FFFFFF
+  GroupBorderColor #D5DED8
+}
+
+actor Administrateur as Admin
+participant "Interface MVC" as UI
+participant "SalesController" as Controller
+participant "MotoMobiDbContext" as DBContext
+database "SQLite" as SQLite
+
+Admin -> UI : Choisit moto, client, quantité, date, remise
+UI -> Controller : POST /Sales/Create
+Controller -> DBContext : Recherche la moto et le client
+DBContext -> SQLite : SELECT moto et client
+SQLite --> DBContext : Résultats
+DBContext --> Controller : Moto et client
+Controller -> Controller : Valide quantité, stock et remise
+
+alt Données invalides ou stock insuffisant
+  Controller --> UI : Réaffiche le formulaire avec les erreurs
+  UI --> Admin : Demande de correction
+else Vente valide
+  Controller -> Controller : Copie le prix unitaire du catalogue
+  Controller -> DBContext : Diminue le stock et ajoute la vente
+  DBContext -> SQLite : Transaction : UPDATE Motorcycle + INSERT Sale
+  SQLite --> DBContext : Enregistrement confirmé
+  DBContext --> Controller : Identifiant attribué
+  Controller --> UI : Redirection vers l'historique
+  UI --> Admin : Affiche la référence MMN-xxxxxx
+end
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+title Diagramme de déploiement - Moto Mobi Nardo
+left to right direction
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontColor #17231F
+skinparam ArrowColor #17664F
+skinparam node {
+  BackgroundColor #FFFFFF
+  BorderColor #17664F
+  FontColor #17231F
+}
+skinparam artifact {
+  BackgroundColor #FFFFFF
+  BorderColor #17664F
+  FontColor #17231F
+}
+
+node "Poste client" <<device>> as Client {
+  artifact "Navigateur web" as Browser
+}
+
+node "Serveur web" as Server {
+  node ".NET 10 / ASP.NET Core" as Runtime {
+    artifact "Moto Mobi Nardo" as App
+  }
+  database "App_Data/\nmoto-mobi-nardo.db" as SQLite
+  artifact "appsettings.json\nNom, adresse, téléphone, devise" as Settings
+}
+
+Browser --> App : HTTP en local\nHTTPS en production
+App --> SQLite : Entity Framework Core
+App --> Settings : configuration
+@enduml

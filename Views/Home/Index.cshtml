@@ -1,0 +1,141 @@
+@model MotoMobiNardo.Models.DashboardViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Tableau de bord";
+    ViewData["PageHeading"] = "Vue d’ensemble";
+    var culture = CultureInfo.GetCultureInfo("fr-MA");
+}
+
+<section class="dashboard-hero">
+    <div class="dashboard-hero-copy">
+        <span class="dashboard-kicker"><i></i> PERFORMANCE CONCESSION · @Model.SelectedYear</span>
+        <h2>Vos ventes.<br /><em>En mouvement.</em></h2>
+        <p>Suivez le chiffre d’affaires, les motos vendues et les canaux qui génèrent vos ventes.</p>
+        <a asp-controller="Sales" asp-action="Create" class="dashboard-hero-link">Enregistrer une vente <span>↗</span></a>
+    </div>
+    <div class="best-seller-card">
+        <span class="best-seller-label">MEILLEURE VENTE · @Model.SelectedYear</span>
+        @if (Model.BestSeller is null)
+        {
+            <strong class="best-seller-name">Pas encore de vente</strong>
+            <span class="best-seller-meta">Les données apparaîtront après votre première vente.</span>
+        }
+        else
+        {
+            <strong class="best-seller-name">@Model.BestSeller</strong>
+            <span class="best-seller-meta">@Model.BestSellerUnits unité(s) vendue(s) sur la période sélectionnée</span>
+        }
+        <div class="best-seller-orbit" aria-hidden="true"><span>🏍</span></div>
+    </div>
+</section>
+
+<form method="get" asp-controller="Home" asp-action="Index" class="dashboard-filters" aria-label="Filtres du tableau de bord">
+    <div class="filter-heading"><span class="eyebrow">ANALYSE DES VENTES</span><span class="filter-context">Données des ventes actives</span></div>
+    <label><span>Année</span><select name="year">
+        @foreach (var option in Model.YearOptions) { <option value="@option" selected="@(option == Model.SelectedYear)">@option</option> }
+    </select></label>
+    <label><span>Marque</span><select name="brand"><option value="">Toutes les marques</option>
+        @foreach (var option in Model.BrandOptions) { <option value="@option" selected="@(option == Model.SelectedBrand)">@option</option> }
+    </select></label>
+    <button type="submit" class="filter-submit">Appliquer <span>→</span></button>
+</form>
+
+<section class="dashboard-kpis" aria-label="Indicateurs de vente">
+    <article class="dashboard-kpi primary-kpi"><div class="kpi-label">CHIFFRE D’AFFAIRES <span>↗</span></div><strong>@Model.Revenue.ToString("N0", culture) <small>DH</small></strong><p>@Model.SelectedYear · @(Model.SelectedBrand ?? "Toutes les marques")</p></article>
+    <article class="dashboard-kpi"><div class="kpi-label">UNITÉS VENDUES <span>▤</span></div><strong>@Model.UnitsSold</strong><p>Quantité sur la période</p></article>
+    <article class="dashboard-kpi"><div class="kpi-label">VENTES ACTIVES <span>↗</span></div><strong>@Model.ActiveSaleCount</strong><p>Factures non annulées</p></article>
+    <article class="dashboard-kpi"><div class="kpi-label">PANIER MOYEN <span>◷</span></div><strong>@Model.AverageSale.ToString("N0", culture) <small>DH</small></strong><p>Chiffre d’affaires ÷ ventes</p></article>
+    <article class="dashboard-kpi"><div class="kpi-label">PROSPECTS À SUIVRE <span>✉</span></div><strong>@Model.OpenInquiryCount</strong><p><a asp-controller="Leads" asp-action="Index">Ouvrir le suivi commercial ↗</a></p></article>
+    <article class="dashboard-kpi"><div class="kpi-label">DEMANDES RÉSERVÉES <span>◉</span></div><strong>@Model.ReservedInquiryCount</strong><p>Étape du pipeline prospects</p></article>
+    <article class="dashboard-kpi"><div class="kpi-label">AUJOURD’HUI <span>↗</span></div><strong>@Model.TodayRevenue.ToString("N0", culture) <small>DH</small></strong><p>Ventes enregistrées ce jour</p></article>
+    <article class="dashboard-kpi"><div class="kpi-label">CETTE SEMAINE <span>↗</span></div><strong>@Model.ThisWeekRevenue.ToString("N0", culture) <small>DH</small></strong><p>Depuis lundi</p></article>
+    <article class="dashboard-kpi"><div class="kpi-label">CE MOIS-CI <span>↗</span></div><strong>@Model.ThisMonthRevenue.ToString("N0", culture) <small>DH</small></strong><p>Du 1er au dernier jour du mois</p></article>
+</section>
+
+<section class="dashboard-chart-grid">
+    <article class="dashboard-panel trend-panel">
+        <div class="dashboard-panel-head"><div><span class="eyebrow">TENDANCE ANNUELLE</span><h3>Chiffre d’affaires par mois</h3></div><span class="chart-unit">DH · @Model.SelectedYear</span></div>
+        @if (Model.ActiveSaleCount == 0)
+        {
+            <div class="chart-empty"><span>↗</span><strong>Aucune vente pour ces filtres</strong><small>Choisissez une autre année ou ajoutez une vente.</small></div>
+        }
+        else
+        {
+            <div class="monthly-chart" role="img" aria-label="Chiffre d’affaires mensuel pour l’année @Model.SelectedYear">
+                @foreach (var month in Model.MonthlyRevenue)
+                {
+                    var height = month.HeightPercent.ToString("0.##", CultureInfo.InvariantCulture) + "%";
+                    <div class="month-column" title="@month.Label : @month.Revenue.ToString("N0", culture) DH, @month.Units unité(s)">
+                        <div class="bar-stage"><span class="month-bar @(month.Revenue > 0 ? "has-sales" : "")" style="height:@height"></span></div>
+                        <span class="month-label">@month.Label</span>
+                    </div>
+                }
+            </div>
+        }
+        <div class="chart-footnote"><span class="chart-legend-dot"></span> Ventes enregistrées</div>
+    </article>
+
+    <article class="dashboard-panel brand-panel">
+        <div class="dashboard-panel-head"><div><span class="eyebrow">RÉPARTITION</span><h3>Ventes par marque</h3></div><span class="chart-unit">@Model.SelectedYear</span></div>
+        @if (Model.BrandRevenue.Count == 0)
+        {
+            <div class="chart-empty compact-empty"><strong>Aucune donnée à comparer</strong><small>Les marques apparaîtront avec les ventes.</small></div>
+        }
+        else
+        {
+            <div class="brand-chart" role="img" aria-label="Chiffre d’affaires par marque pour l’année @Model.SelectedYear">
+                @foreach (var item in Model.BrandRevenue)
+                {
+                    var width = item.WidthPercent.ToString("0.##", CultureInfo.InvariantCulture) + "%";
+                    <div class="brand-row"><div class="brand-row-label"><strong>@item.Brand</strong><span>@item.Revenue.ToString("N0", culture) DH</span></div><div class="brand-track"><span style="width:@width"></span></div><small>@item.Units unité(s)</small></div>
+                }
+            </div>
+        }
+    </article>
+
+    <article class="dashboard-panel channel-panel">
+        <div class="dashboard-panel-head"><div><span class="eyebrow">ORIGINE DES VENTES</span><h3>Par canal</h3></div><span class="chart-unit">@Model.ActiveSaleCount vente(s)</span></div>
+        @if (Model.ChannelSales.Count == 0)
+        {
+            <div class="chart-empty compact-empty"><strong>Aucune vente à répartir</strong><small>Le canal sera demandé à chaque nouvelle vente.</small></div>
+        }
+        else
+        {
+            <div class="channel-list">
+                @foreach (var item in Model.ChannelSales)
+                {
+                    var width = item.WidthPercent.ToString("0.##", CultureInfo.InvariantCulture) + "%";
+                    <div class="channel-row"><div class="channel-row-label"><strong>@item.Channel</strong><span>@item.Sales vente(s) · @item.Units moto(s)</span></div><div class="channel-track"><span style="width:@width"></span></div><small>@item.Revenue.ToString("N0", culture) DH</small></div>
+                }
+            </div>
+        }
+    </article>
+</section>
+
+<section class="dashboard-lower-grid">
+    <article class="dashboard-panel recent-panel">
+        <div class="dashboard-panel-head"><div><span class="eyebrow">DERNIÈRES TRANSACTIONS</span><h3>Ventes récentes</h3></div><a asp-controller="Sales" asp-action="Index" class="dashboard-text-link">Tout l’historique ↗</a></div>
+        @if (Model.RecentSales.Count == 0) { <div class="chart-empty compact-empty"><strong>Aucune vente sur cette période</strong><small>Les ventes actives apparaîtront ici.</small></div> }
+        else
+        {
+            <div class="table-responsive"><table class="table dashboard-table"><thead><tr><th>CLIENT / RÉF.</th><th>MOTO</th><th>CANAL</th><th>DATE</th><th class="text-end">TOTAL</th></tr></thead><tbody>
+                @foreach (var row in Model.RecentSales)
+                {
+                    <tr><td><strong>@row.Customer</strong><small>@row.Sale.InvoiceNumber</small></td><td>@row.Motorcycle</td><td><span class="channel-tag">@row.Sale.Channel</span></td><td>@row.Sale.SoldAt.ToString("dd/MM/yyyy")</td><td class="text-end amount">@row.Sale.Total.ToString("N0", culture) DH</td></tr>
+                }
+            </tbody></table></div>
+        }
+    </article>
+
+    <article class="dashboard-panel inventory-panel">
+        <div class="dashboard-panel-head"><div><span class="eyebrow">DISPONIBILITÉ</span><h3>Stock à surveiller</h3></div><a asp-controller="Motorcycles" asp-action="Index" class="dashboard-text-link">Catalogue ↗</a></div>
+        <div class="inventory-summary"><div><strong>@Model.UnitsInStock</strong><span>unités en stock</span></div><div><strong>@Model.MotorcycleCount</strong><span>références</span></div><div><strong>@Model.InventoryRetailValue.ToString("N0", culture) DH</strong><span>valeur stock au prix affiché</span></div></div>
+        @if (Model.LowStock.Count == 0) { <div class="chart-empty compact-empty"><strong>Aucune alerte de stock</strong><small>Les références à 2 unités ou moins apparaîtront ici.</small></div> }
+        else
+        {
+            <div class="inventory-list">@foreach (var moto in Model.LowStock) { <div class="inventory-row"><span class="inventory-moto-icon">M</span><span class="inventory-moto-name"><strong>@moto.Brand @moto.Model</strong><small>@moto.EngineCc cc · @moto.Year</small></span><span class="inventory-qty @(moto.Stock == 0 ? "is-empty" : "")">@moto.Stock</span></div> }</div>
+        }
+    </article>
+</section>
+
+<p class="dashboard-data-note"><span>ⓘ</span> La marge et le bénéfice ne sont pas calculés : le coût d’achat des motos n’est pas encore enregistré dans le système.</p>

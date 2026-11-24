@@ -1,0 +1,4 @@
+@model MotoMobiNardo.Models.Customer
+@{ ViewData["Title"] = "Ajouter un client"; ViewData["PageHeading"] = "Ajouter un client"; }
+<p class="page-intro">Enregistrez les coordonnées d’un nouveau client.</p><section class="panel form-panel"><form asp-action="Create" method="post"><partial name="_Form" model="Model" /><div class="form-actions"><a asp-action="Index" class="btn btn-light">Annuler</a><button class="btn btn-primary" type="submit">Enregistrer le client <span>→</span></button></div></form></section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,36 @@
+@model MotoMobiNardo.Models.CustomerInquiriesViewModel
+@{
+    ViewData["Title"] = "Prospects web";
+    ViewData["PageHeading"] = "Prospects web";
+    var statuses = MotoMobiNardo.Models.CustomerInquiryStatuses.Options;
+}
+<div class="page-toolbar"><p class="page-intro">Suivez les demandes envoyées depuis le showroom public. Répondez par téléphone ou WhatsApp, puis mettez à jour l’étape.</p><span class="stock-pill">@Model.Inquiries.Count demande(s) récentes</span></div>
+@if (Model.Inquiries.Count == 0)
+{
+    <section class="panel empty-state"><h3>Les prochaines demandes apparaîtront ici.</h3><p>Le formulaire du showroom enregistre le nom, le téléphone et la moto demandée avec le consentement du client.</p></section>
+}
+else
+{
+    <div class="lead-list">
+    @foreach (var lead in Model.Inquiries)
+    {
+        var whatsapp = new string(lead.Phone.Where(char.IsDigit).ToArray());
+        if (whatsapp.StartsWith("00")) { whatsapp = whatsapp[2..]; }
+        else if (whatsapp.StartsWith("0")) { whatsapp = "212" + whatsapp[1..]; }
+        var whatsappMessage = Uri.EscapeDataString($"Salam {lead.Name}, vous avez demandé des informations sur {((lead.MotorcycleId.HasValue && Model.MotorcycleNames.TryGetValue(lead.MotorcycleId.Value, out var bikeName)) ? bikeName : "notre showroom")}. Comment puis-je vous aider ?");
+        <article class="panel lead-card">
+            <div class="lead-heading"><div><span class="eyebrow">DEMANDE · @lead.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span><h2>@lead.Name</h2></div><span class="lead-status">@lead.Status</span></div>
+            <div class="lead-meta"><span>@lead.Type</span><span>@(lead.MotorcycleId.HasValue ? Model.MotorcycleNames.GetValueOrDefault(lead.MotorcycleId.Value, "Moto supprimée") : "Aucun modèle choisi")</span></div>
+            @if (!string.IsNullOrWhiteSpace(lead.Message)) { <p class="lead-message">@lead.Message</p> }
+            <div class="lead-contact"><a href="tel:@lead.Phone">@lead.Phone</a>@if (!string.IsNullOrWhiteSpace(lead.Email)) { <a href="mailto:@lead.Email">@lead.Email</a> }<a class="btn btn-light" href="https://wa.me/@whatsapp?text=@whatsappMessage" target="_blank" rel="noopener noreferrer">Répondre sur WhatsApp ↗</a></div>
+            <form asp-action="Update" method="post" class="lead-update-form">
+                @Html.AntiForgeryToken()<input type="hidden" name="id" value="@lead.Id" />
+                <label>Étape<select name="status">@foreach (var status in statuses) { <option value="@status" selected="@(status == lead.Status)">@status</option> }</select></label>
+                <label class="lead-note">Note interne<textarea name="internalNote" rows="2" maxlength="2000" placeholder="Prochaine action, préférence ou suivi…">@lead.InternalNote</textarea></label>
+                <button class="btn btn-primary" type="submit">Enregistrer le suivi</button>
+            </form>
+            @if (lead.Status == MotoMobiNardo.Models.CustomerInquiryStatuses.Won) { <p class="lead-reminder">Enregistrez la transaction correspondante dans « Ventes » pour qu’elle apparaisse dans les revenus du tableau de bord.</p> }
+        </article>
+    }
+    </div>
+}

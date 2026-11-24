@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+@inject IConfiguration Configuration
+@inject MotoMobiNardo.Data.MotoMobiDbContext Database
+@{
+    var business = await Database.BusinessProfiles.AsNoTracking().SingleOrDefaultAsync()
+        ?? Configuration.GetSection("BusinessProfile").Get<MotoMobiNardo.Models.BusinessProfile>()
+        ?? new MotoMobiNardo.Models.BusinessProfile();
+}
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · @business.Name</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<aside class="sidebar">
+    <a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-icon">M</span><span>@business.Name<small>@business.City · GESTION</small></span></a>
+    <div class="nav-caption">ESPACE DE TRAVAIL</div>
+    <nav class="side-nav">
+        <a asp-controller="Showroom" asp-action="Index" target="_blank" rel="noopener noreferrer"><span class="nav-icon">↗</span> Voir la vitrine</a>
+        <a asp-controller="Home" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"><span class="nav-icon">▦</span> Tableau de bord</a>
+        <a asp-controller="Motorcycles" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Motorcycles" ? "active" : "")"><span class="nav-icon">◉</span> Catalogue motos</a>
+        <a asp-controller="Customers" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "active" : "")"><span class="nav-icon">♙</span> Clients</a>
+        <a asp-controller="Leads" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Leads" ? "active" : "")"><span class="nav-icon">✉</span> Prospects web</a>
+        <a asp-controller="Settings" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")"><span class="nav-icon">⚙</span> Profil du showroom</a>
+        <a asp-controller="Sales" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")"><span class="nav-icon">↗</span> Ventes</a>
+        <a asp-controller="AcquisitionInquiries" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "AcquisitionInquiries" ? "active" : "")"><span class="nav-icon">✉</span> Demandes projet</a>
+    </nav>
+    <div class="sidebar-bottom"><span class="status-dot"></span> Gestion commerciale<br /><small>Stock · Clients · Ventes</small><div class="signed-user">@User.Identity?.Name</div><form asp-controller="Account" asp-action="Logout" method="post"><button class="signout-button" type="submit">Se déconnecter ↗</button></form></div>
+</aside>
+<main class="main-area">
+    <header class="topbar"><div><span class="eyebrow">MOTO MOBI NARDO</span><h1>@ViewData["PageHeading"]</h1></div><div class="topbar-actions"><button class="theme-toggle" type="button" data-theme-toggle aria-label="Changer de thème" aria-pressed="false" title="Changer de thème">◐</button><a class="btn btn-primary" asp-controller="Sales" asp-action="Create"><span>＋</span> Nouvelle vente</a></div></header>
+    @if (TempData["Success"] is string success) { <div class="alert alert-success">✓ @success</div> }
+    @if (TempData["Error"] is string error) { <div class="alert alert-warning">! @error</div> }
+    @if (string.Equals(Configuration["MOBI_NARDO_DEMO_MODE"], "true", StringComparison.OrdinalIgnoreCase)) { <div class="demo-banner" role="status">ENVIRONNEMENT DE DÉMONSTRATION — données et ventes fictives; aucune donnée réelle de concession.</div> }
+    @RenderBody()
+    <footer class="app-footer"><span>© @DateTime.Today.Year @business.Name</span><span>@business.City · Gestion de concession</span></footer>
+</main>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,46 @@
+@startuml
+title Diagramme d'activité - Cycle d'une vente
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontColor #17231F
+skinparam ArrowColor #17664F
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #17664F
+  FontColor #17231F
+  DiamondBackgroundColor #FFFFFF
+  DiamondBorderColor #17664F
+  DiamondFontColor #17231F
+  StartColor #17664F
+  EndColor #17664F
+}
+
+start
+:Administrateur ouvre l'espace de gestion;
+if (Session authentifiée ?) then (oui)
+  :Ouvrir le formulaire de vente;
+else (non)
+  :Afficher l'écran de connexion;
+  stop
+endif
+
+:Choisir une moto et un client;
+:Saisir quantité, date et remise;
+if (Informations valides ?) then (oui)
+  if (Stock suffisant ?) then (oui)
+    :Copier le prix actuel du catalogue;
+    :Enregistrer la vente;
+    :Diminuer le stock dans la même transaction;
+    :Afficher la référence de vente;
+    if (Imprimer la facture ?) then (oui)
+      :Afficher la facture imprimable;
+    endif
+  else (non)
+    :Afficher le stock disponible;
+  endif
+else (non)
+  :Afficher les erreurs de validation;
+endif
+stop
+@enduml

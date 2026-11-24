@@ -1,0 +1,57 @@
+@model MotoMobiNardo.Models.AcquisitionInquiryInput
+@inject IConfiguration Configuration
+@{
+    Layout = null;
+    ViewData["Title"] = "Offres commerciales · MOBI NARDO";
+    var starter = Configuration.GetValue<decimal>("ProjectOffer:Starter", 2500m);
+    var business = Configuration.GetValue<decimal>("ProjectOffer:Business", 3500m);
+    var premium = Configuration.GetValue<decimal>("ProjectOffer:Premium", 5000m);
+    Func<decimal, string> formatPrice = value => value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).Replace(",", " ");
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#080808" />
+    <meta name="description" content="Offres MOBI NARDO pour un showroom moto au Maroc : catalogue en ligne, gestion de stock et suivi des demandes clients." />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/showroom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/acquisition.css" asp-append-version="true" />
+</head>
+<body class="acq-body">
+    <header class="acq-header"><a class="brand" href="/"><span class="brand-mark">M<span>✳</span></span><span class="brand-name">MOBI <b>NARDO</b><small>CONCESSION MOTO · BOUSKOURA</small></span></a><nav><a href="#platform">La solution</a><a href="#packages">Les forfaits</a><a href="#terms">Conditions</a><a href="#inquiry">Contact</a></nav><a class="acq-back" href="/">Voir le showroom ↗</a></header>
+    <main>
+        <section class="acq-hero">
+            <div class="acq-hero-image" aria-hidden="true"></div><div class="acq-hero-overlay"></div>
+            <div class="acq-hero-copy"><span class="eyebrow">OUTIL DE VENTE · CONÇU POUR LES CONCESSIONS MOTO</span><h1>VOTRE SHOWROOM,<br />EN LIGNE. <em>VOTRE STOCK, MAÎTRISÉ.</em></h1><p>Une vitrine mobile, les motos réellement disponibles et un suivi simple des demandes clients. Une base logicielle concrète à configurer avec le concessionnaire.</p><div class="acq-actions"><a class="button button-orange" href="/">Découvrir la vitrine <span>↗</span></a><a class="button button-outline" href="#packages">Comparer les forfaits <span>↓</span></a></div><div class="acq-demo-note">Les indicateurs reflètent uniquement les données enregistrées. Aucun chiffre de vente n’est inventé.</div></div>
+            <aside class="acq-price"><span>MISE EN PLACE · FORFAITS PONCTUELS</span><strong>@formatPrice(starter)–@formatPrice(premium)</strong><small>DH · hors hébergement et domaine</small></aside>
+        </section>
+        <div class="acq-notice"><strong>PRIX DE CONFIGURATION</strong><span>Forfaits ponctuels de 2 500 à 5 000 DH. Le nom de domaine, l’hébergement, les frais de paiement et la maintenance continue sont facturés séparément par les prestataires choisis.</span></div>
+        <section class="acq-platform" id="platform"><div class="acq-heading"><span class="eyebrow">01 / LA SOLUTION</span><h2>DU STOCK À LA<br /><em>PRISE DE CONTACT.</em></h2><p>La vitrine publique et l’espace de gestion partagent la même base : une mise à jour du stock apparaît dans le catalogue.</p></div><div class="acq-feature-grid"><article><span>01</span><h3>Catalogue clair</h3><p>Recherche par marque, année, cylindrée et prix. La fiche affiche l’état, le prix et la disponibilité.</p></article><article><span>02</span><h3>Photos du stock</h3><p>Ajoutez une photo depuis l’administration. Elle est stockée dans le dossier persistant configuré.</p></article><article><span>03</span><h3>Demandes web</h3><p>Le visiteur choisit une moto et un motif. Son numéro et son accord sont conservés pour le suivi.</p></article><article><span>04</span><h3>Suivi commercial</h3><p>La liste des prospects garde l’étape, les notes et un raccourci WhatsApp de réponse.</p></article><article><span>05</span><h3>Ventes réelles</h3><p>Les ventes enregistrées ajustent le stock et alimentent le tableau de bord; la facture est imprimable.</p></article><article><span>06</span><h3>Profil modifiable</h3><p>Le nom, la ville, les couleurs, les contacts, les horaires et les liens se modifient sans code.</p></article></div></section>
+        <section class="acq-terms" id="packages"><div><span class="eyebrow">02 / FORFAITS · MAD</span><h2>CHOISISSEZ<br />VOTRE <em>DÉPART.</em></h2><p class="acq-terms-intro">Les montants couvrent une mise en place ponctuelle. Le détail final dépend des données, du domaine et des services externes choisis.</p></div><div class="package-grid">
+            <article class="package-card"><span class="package-label">STARTER</span><strong>@formatPrice(starter) <small>DH</small></strong><p>Pour mettre en ligne un catalogue professionnel.</p><ul><li>Site vitrine adapté au mobile</li><li>Catalogue et filtres de base</li><li>Gestion des motos, prix et stock</li><li>Contact WhatsApp et téléphone</li><li>Configuration initiale du profil</li></ul><a href="#inquiry" class="button button-outline-dark">Demander ce forfait ↗</a></article>
+            <article class="package-card package-featured"><span class="package-label">BUSINESS · CONSEILLÉ</span><strong>@formatPrice(business) <small>DH</small></strong><p>Pour suivre les contacts et les ventes au même endroit.</p><ul><li>Tout le forfait Starter</li><li>Demandes web et étapes de suivi</li><li>Fiches clients et ventes</li><li>Mise à jour du stock après vente</li><li>Facture imprimable</li></ul><a href="#inquiry" class="button button-orange">Demander ce forfait ↗</a></article>
+            <article class="package-card"><span class="package-label">PREMIUM</span><strong>@formatPrice(premium) <small>DH</small></strong><p>Pour un déploiement personnalisé et accompagné.</p><ul><li>Tout le forfait Business</li><li>Identité, couleurs et contenus configurés</li><li>Réseaux, adresse et horaires configurés</li><li>Tableau de bord des ventes enregistrées</li><li>Formation initiale et guide de livraison</li></ul><a href="#inquiry" class="button button-outline-dark">Demander ce forfait ↗</a></article>
+        </div></section>
+        <section class="acq-terms" id="terms"><div><span class="eyebrow">03 / FRAIS & LIMITES</span><h2>CLAIR AVANT<br /><em>LA LIVRAISON.</em></h2><p class="acq-terms-intro">Aucune hausse de ventes, rentabilité ni disponibilité permanente n’est promise. Le concessionnaire conserve la maîtrise de son catalogue et de ses coordonnées.</p></div><div class="acq-terms-list"><div><span>01</span><p><b>Forfait ponctuel</b> — le montant couvre la configuration, la mise en service convenue et le transfert des accès définis. Aucun abonnement n’est intégré.</p></div><div><span>02</span><p><b>Hébergement et domaine</b> — facturés séparément par le fournisseur choisi. L’offre gratuite de démonstration est limitée et ne garantit pas la disponibilité. Un domaine personnalisé demande un nom de domaine et un accès DNS.</p></div><div><span>03</span><p><b>Maintenance</b> — corrections et évolutions après livraison nécessitent un accord séparé; aucun frais récurrent n’est inclus d’office.</p></div><div><span>04</span><p><b>À chiffrer séparément</b> — rôles employés, dépenses et bénéfice net, exports Excel, paiement en ligne, notifications marketing, assistant IA externe et langues arabe/anglaise.</p></div><div><span>05</span><p><b>Données et images</b> — le concessionnaire fournit le stock exact, les prix, coordonnées et photos qu’il est autorisé à publier. Les exemples tiers ne constituent pas son inventaire.</p></div></div></section>
+        <section class="acq-inquiry" id="inquiry"><div class="acq-inquiry-copy"><span class="eyebrow">04 / DEMANDER UNE DÉMONSTRATION</span><h2>ON PRÉPARE<br /><em>VOTRE SHOWROOM.</em></h2><p>Indiquez le forfait et les fonctions prioritaires. Ce formulaire ne crée aucun engagement.</p><div class="acq-price-inline"><span>FORFAITS PONCTUELS</span><strong>@formatPrice(starter) – @formatPrice(premium) <small>DH</small></strong></div></div><div class="acq-form-wrap">
+            @if (TempData["InquirySent"] is true) { <div class="acq-success" role="status">Thank you. Your enquiry has been recorded for the project owner.</div> }
+            <form asp-controller="Acquisition" asp-action="Inquire" method="post" class="acq-form">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="acq-validation"></div>
+                <label asp-for="Name"></label><input asp-for="Name" autocomplete="name" /><span asp-validation-for="Name" class="field-error"></span>
+                <label asp-for="Email"></label><input asp-for="Email" autocomplete="email" /><span asp-validation-for="Email" class="field-error"></span>
+                <label asp-for="Company"></label><input asp-for="Company" autocomplete="organization" /><span asp-validation-for="Company" class="field-error"></span>
+                <label asp-for="Message"></label><textarea asp-for="Message" rows="5" placeholder="Le forfait souhaité, vos besoins et un moyen de vous joindre."></textarea><span asp-validation-for="Message" class="field-error"></span>
+                <button class="button button-orange" type="submit">Envoyer la demande <span>↗</span></button>
+                <small>Les coordonnées ne sont accessibles qu’à l’équipe authentifiée pour répondre à cette demande.</small>
+            </form>
+        </div></section>
+    </main>
+    <footer class="site-footer"><a class="brand" href="/"><span class="brand-mark">M<span>✳</span></span><span class="brand-name">MOBI <b>NARDO</b><small>BOUSKOURA · MAROC</small></span></a><span>Forfaits de configuration ponctuels · prix indicatifs en DH, soumis à accord écrit.</span><a href="/">Retour au showroom ↗</a></footer>
+</body>
+</html>

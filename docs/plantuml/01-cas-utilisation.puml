@@ -1,0 +1,54 @@
+@startuml
+title Diagramme de cas d'utilisation - Moto Mobi Nardo
+left to right direction
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontColor #17231F
+skinparam ArrowColor #17664F
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #17664F
+  FontColor #17231F
+}
+skinparam actor {
+  BorderColor #17664F
+  FontColor #17231F
+}
+
+actor "Administrateur /\npropriétaire" as Admin
+actor "Propriétaire au\npremier lancement" as FirstOwner
+
+rectangle "Moto Mobi Nardo" {
+  usecase "Créer le compte\nadministrateur initial" as UC_Setup
+  usecase "Se connecter /\nse déconnecter" as UC_Login
+  usecase "Consulter le\ntableau de bord" as UC_Dashboard
+  usecase "Gérer le catalogue\net le stock des motos" as UC_Motorcycles
+  usecase "Gérer les clients" as UC_Customers
+  usecase "Enregistrer une vente" as UC_Sale
+  usecase "Sélectionner une moto\nen stock" as UC_SelectMoto
+  usecase "Sélectionner un\nclient existant" as UC_SelectCustomer
+  usecase "Vérifier la disponibilité" as UC_CheckStock
+  usecase "Consulter l'historique\ndes ventes" as UC_History
+  usecase "Annuler une vente" as UC_Cancel
+  usecase "Restituer les unités\nau stock" as UC_RestoreStock
+  usecase "Imprimer une facture\nde vente" as UC_Invoice
+  usecase "Consulter les alertes\nde stock bas" as UC_LowStock
+}
+
+FirstOwner --> UC_Setup
+Admin --> UC_Login
+Admin --> UC_Dashboard
+Admin --> UC_Motorcycles
+Admin --> UC_Customers
+Admin --> UC_Sale
+Admin --> UC_History
+Admin --> UC_Cancel
+Admin --> UC_Invoice
+Admin --> UC_LowStock
+UC_Sale ..> UC_SelectMoto : <<include>>
+UC_Sale ..> UC_SelectCustomer : <<include>>
+UC_Sale ..> UC_CheckStock : <<include>>
+UC_Cancel ..> UC_RestoreStock : <<include>>
+UC_Invoice ..> UC_History : <<extend>>
+@enduml

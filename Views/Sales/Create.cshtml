@@ -1,0 +1,20 @@
+@model MotoMobiNardo.Models.Sale
+@{ ViewData["Title"] = "Nouvelle vente"; ViewData["PageHeading"] = "Nouvelle vente"; }
+<p class="page-intro">Choisissez la moto et le client. Le stock sera mis à jour automatiquement.</p>
+<section class="panel form-panel"><form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+    @if (!(bool)ViewBag.HasMotorcycles) { <div class="alert alert-warning">Aucune moto en stock. <a asp-controller="Motorcycles" asp-action="Create">Ajouter une moto</a> ou mettre à jour le stock.</div> }
+    @if (!(bool)ViewBag.HasCustomers) { <div class="alert alert-warning">Aucun client disponible. <a asp-controller="Customers" asp-action="Create">Ajouter un client</a> avant d’enregistrer la vente.</div> }
+    <div class="form-grid">
+        <div class="field full-field"><label asp-for="MotorcycleId">Moto</label><select asp-for="MotorcycleId" asp-items="ViewBag.Motorcycles"><option value="">Sélectionner une moto en stock</option></select><span asp-validation-for="MotorcycleId"></span></div>
+        <div class="field full-field"><label asp-for="CustomerId">Client</label><select asp-for="CustomerId" asp-items="ViewBag.Customers"><option value="">Sélectionner un client</option></select><span asp-validation-for="CustomerId"></span></div>
+        <div class="field"><label asp-for="Channel"></label><select asp-for="Channel" asp-items="ViewBag.Channels"></select><span asp-validation-for="Channel"></span></div>
+        <div class="field"><label asp-for="Channel"></label><select asp-for="Channel" asp-items="ViewBag.Channels"></select><span asp-validation-for="Channel"></span></div>
+        <div class="field"><label asp-for="Quantity"></label><input asp-for="Quantity" type="number" min="1" /><span asp-validation-for="Quantity"></span></div>
+        <div class="field"><label asp-for="SoldAt"></label><input asp-for="SoldAt" type="date" /><span asp-validation-for="SoldAt"></span></div>
+        <div class="field"><label asp-for="Discount"></label><div class="input-suffix"><input asp-for="Discount" type="number" step="0.01" min="0" /><span>DH</span></div><span asp-validation-for="Discount"></span></div>
+    </div>
+    <div class="info-note">Le prix unitaire appliqué sera le prix actuel du catalogue. La vente est enregistrée immédiatement.</div>
+    <div class="form-actions"><a asp-action="Index" class="btn btn-light">Annuler</a><button class="btn btn-primary" type="submit" @(!(bool)ViewBag.HasMotorcycles || !(bool)ViewBag.HasCustomers ? "disabled" : "")>Confirmer la vente <span>→</span></button></div>
+</form></section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

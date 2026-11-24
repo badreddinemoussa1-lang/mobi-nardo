@@ -1,0 +1,5 @@
+@model MotoMobiNardo.Models.Motorcycle
+@{ ViewData["Title"] = "Ajouter une moto"; ViewData["PageHeading"] = "Ajouter une moto"; }
+<p class="page-intro">Complétez les informations pour ajouter un modèle au catalogue.</p>
+<section class="panel form-panel"><form asp-action="Create" method="post" enctype="multipart/form-data"><partial name="_Form" model="Model" /><div class="form-actions"><a asp-action="Index" class="btn btn-light">Annuler</a><button class="btn btn-primary" type="submit">Enregistrer la moto <span>→</span></button></div></form></section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

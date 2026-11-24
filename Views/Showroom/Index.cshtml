@@ -1,0 +1,148 @@
+@model MotoMobiNardo.Models.PublicCatalogViewModel
+@{
+    ViewData["Title"] = $"Motos à vendre à {Model.Business.City}";
+    Layout = null;
+    var phone = Model.Business.Phone;
+    var whatsapp = Model.Business.WhatsApp;
+    var whatsappDigits = new string((whatsapp ?? "").Where(char.IsDigit).ToArray());
+    if (whatsappDigits.StartsWith("00")) whatsappDigits = whatsappDigits[2..];
+    else if (whatsappDigits.StartsWith("0")) whatsappDigits = "212" + whatsappDigits[1..];
+    var hasWhatsapp = !string.IsNullOrWhiteSpace(whatsappDigits);
+    var featured = Model.Motorcycles.FirstOrDefault();
+    var message = featured is null ? Uri.EscapeDataString("Salam, bghit n3ref l-motos li kaynin f stock.") : Uri.EscapeDataString($"Salam, je suis intéressé(e) par la {featured.Brand} {featured.Model} ({featured.Year}) affichée sur votre site.");
+    var heroPhoto = "https://images.unsplash.com/photo-1761000989410-3fa81f1b94cb?auto=format&fit=crop&w=2000&q=85";
+    var primaryColor = System.Text.RegularExpressions.Regex.IsMatch(Model.Business.PrimaryColor ?? "", "^#[0-9A-Fa-f]{6}$") ? Model.Business.PrimaryColor : "#ff6b00";
+    var secondaryColor = System.Text.RegularExpressions.Regex.IsMatch(Model.Business.SecondaryColor ?? "", "^#[0-9A-Fa-f]{6}$") ? Model.Business.SecondaryColor : "#080808";
+    var brandStyle = $"--orange:{primaryColor};--black:{secondaryColor}";
+}
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#080808" />
+    <meta name="description" content="Découvrez les motos disponibles chez @Model.Business.Name à @Model.Business.City. Une sélection soignée, un contact direct, sans détour." />
+    <meta property="og:title" content="@Model.Business.Name — Engineered for Passion" />
+    <meta property="og:description" content="Votre prochaine moto vous attend à @Model.Business.City." />
+    <meta property="og:type" content="website" />
+    <title>@ViewData["Title"] · @Model.Business.Name</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/showroom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/showroom-live.css" asp-append-version="true" />
+</head>
+<body style="@brandStyle">
+    <a class="skip-link" href="#stock">Passer au contenu</a>
+    <header class="site-header" id="top">
+        <a class="brand" href="#top" aria-label="@Model.Business.Name, accueil">@if (!string.IsNullOrWhiteSpace(Model.Business.LogoUrl)) { <img class="brand-logo" src="@Model.Business.LogoUrl" alt="" /> } else { <span class="brand-mark">M<span>✳</span></span> }<span class="brand-name">@Model.Business.Name<small>ENGINEERED FOR PASSION</small></span></a>
+        <nav class="desktop-nav" aria-label="Navigation principale"><a href="#stock">Le showroom</a><a href="#about">Notre approche</a><a href="#team">Nos services</a><a href="#contact">Contact</a><a asp-controller="Acquisition" asp-action="Index">Offres pro ↗</a></nav>
+        <div class="header-actions"><a class="header-location" href="#contact"><i></i> @Model.Business.City, Maroc</a><a class="header-cta" href="#stock">Découvrir le stock <span>↗</span></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Ouvrir le menu">☰</button></div>
+        <nav class="mobile-nav" id="mobile-nav" aria-label="Navigation mobile"><a href="#stock">Le showroom</a><a href="#about">Notre approche</a><a href="#team">Nos services</a><a href="#contact">Contact</a><a asp-controller="Acquisition" asp-action="Index">Offres pro ↗</a><a asp-controller="Account" asp-action="Login">Espace équipe ↗</a></nav>
+    </header>
+
+    @if (Model.IsDemo) { <div class="public-demo-banner">DÉMONSTRATION — les motos, demandes et prix d’exemple ne sont pas l’inventaire réel d’une concession.</div> }
+
+    <main>
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-image" style="--hero-image:url('@heroPhoto')" role="img" aria-label="Moto sportive photographiée dans un atelier sombre"></div>
+            <div class="hero-overlay"></div><div class="hero-grid"></div>
+            <div class="hero-content">
+                <div class="hero-kicker"><span class="live-dot"></span> @Model.Business.Name <i>·</i> @Model.Business.City</div>
+                <h1 id="hero-title">LA ROUTE<br />N’ATTEND <em>PAS.</em></h1>
+                <p>Des motos choisies avec soin. Un conseil direct. Et le plaisir de trouver celle qui vous ressemble.</p>
+                <div class="hero-actions"><a class="button button-orange" href="#stock">Voir les motos <span>↘</span></a>@if (hasWhatsapp) { <a class="button button-outline" href="https://wa.me/@whatsappDigits?text=@message" target="_blank" rel="noopener noreferrer">Parler à l’équipe <span>↗</span></a> }</div>
+                <div class="hero-note"><span>PHOTO D’AMBIANCE</span> La moto illustrée n’est pas nécessairement un modèle en stock.</div>
+            </div>
+            <div class="hero-vertical">ENGINEERED FOR PASSION — BUILT FOR PERFORMANCE</div>
+            <a class="hero-scroll" href="#stock"><span></span> DÉFILER POUR EXPLORER</a>
+            @if (featured is not null) { <div class="hero-feature"><span>À DÉCOUVRIR · EN STOCK</span><strong>@featured.Brand <b>@featured.Model</b></strong><small>@featured.EngineCc cc <i>·</i> @featured.Year <i>·</i> @featured.Price.ToString("N0") @Model.Business.Currency</small></div> }
+        </section>
+
+        <div class="marquee" aria-label="@Model.Business.Name · @Model.Business.City · MOTOS · PERFORMANCE"><div class="marquee-track">@for (var i=0;i<4;i++){<span>@Model.Business.Name <b>✳</b> @Model.Business.City.ToUpperInvariant() <b>✳</b> MOTOS <b>✳</b> PERFORMANCE <b>✳</b> ENGINEERED FOR PASSION <b>✳</b></span>}</div></div>
+
+        <section class="stock-section section-wrap" id="stock">
+            <div class="section-heading"><div><span class="eyebrow">01 / LE SHOWROOM</span><h2>LE BONHEUR<br />EST EN <em>STOCK.</em></h2><p class="section-intro">Des motos disponibles, gérées par notre équipe à @Model.Business.City. Filtrez et trouvez votre prochaine compagne de route.</p></div><div class="stock-total"><strong>@Model.Motorcycles.Count.ToString("00")</strong><span>MOTO@(Model.Motorcycles.Count == 1 ? "" : "S")<br />DISPONIBLE@(Model.Motorcycles.Count == 1 ? "" : "S")</span></div></div>
+            <form class="filter-bar" method="get" asp-controller="Showroom" asp-action="Index">
+                <label class="filter-search"><span>RECHERCHE</span><input name="search" value="@Model.Search" placeholder="Marque ou modèle" aria-label="Rechercher une moto" /></label>
+                <label><span>MARQUE</span><select name="brand"><option value="">Toutes les marques</option>@foreach(var brand in Model.Brands){<option value="@brand" selected="@(brand == Model.Brand)">@brand</option>}</select></label>
+                <label><span>ANNÉE</span><select name="year"><option value="">Toutes les années</option>@foreach(var year in Model.Years){<option value="@year" selected="@(year == Model.Year)">@year</option>}</select></label>
+                <label><span>CYLINDRÉE MIN.</span><select name="minCc"><option value="">Toutes</option>@foreach(var cc in new[]{50,125,250,400,600,800,1000}){<option value="@cc" selected="@(cc == Model.MinCc)">@cc cc+</option>}</select></label>
+                <label class="price-filter"><span>PRIX MIN. (@Model.Business.Currency)</span><input name="minPrice" value="@Model.MinPrice" type="number" min="0" inputmode="numeric" placeholder="Sans minimum" /></label>
+                <label class="price-filter"><span>PRIX MAX. (@Model.Business.Currency)</span><input name="maxPrice" value="@Model.MaxPrice" type="number" min="0" inputmode="numeric" placeholder="Sans limite" /></label>
+                <button class="filter-submit" type="submit" aria-label="Appliquer les filtres">FILTRER <span>↗</span></button>
+                @if (!string.IsNullOrWhiteSpace(Model.Search) || !string.IsNullOrWhiteSpace(Model.Brand) || Model.Year.HasValue || Model.MinCc.HasValue || Model.MinPrice.HasValue || Model.MaxPrice.HasValue) { <a class="clear-filters" href="@Url.Action("Index", "Showroom")">Effacer</a> }
+            </form>
+            @if (Model.Motorcycles.Count == 0)
+            {
+                <div class="empty-state"><span>00 —</span><h3>@(string.IsNullOrWhiteSpace(Model.Search) && string.IsNullOrWhiteSpace(Model.Brand) ? "Le prochain arrivage se prépare." : "Aucune moto ne correspond.")</h3><p>@(string.IsNullOrWhiteSpace(Model.Search) ? "Écrivez-nous : nous vous aiderons à trouver le modèle qu’il vous faut." : "Essayez d’élargir vos filtres ou contactez l’équipe.")</p>@if (hasWhatsapp) { <a class="button button-orange" href="https://wa.me/@whatsappDigits?text=@Uri.EscapeDataString("Salam, je cherche une moto. Pouvez-vous me conseiller ?")" target="_blank" rel="noopener noreferrer">Demander conseil ↗</a> }</div>
+            }
+            else
+            {
+                <div class="bike-grid">
+                @for (var i = 0; i < Model.Motorcycles.Count; i++)
+                {
+                    var bike = Model.Motorcycles[i];
+                    var bikeMessage = Uri.EscapeDataString($"Salam, je suis intéressé(e) par la {bike.Brand} {bike.Model} ({bike.Year}) affichée sur votre site.");
+                    <article class="bike-card" style="--card-index:@i">
+                        <div class="bike-visual tone-@((i % 4) + 1)">@if (!string.IsNullOrWhiteSpace(bike.PhotoFileName)) { <img class="bike-photo" src="@Url.Action("Photo", "Media", new { id = bike.Id })" alt="@bike.Brand @bike.Model, @bike.Year" loading="lazy" decoding="async" /> }<span class="bike-index">MN / @((i + 1).ToString("00"))</span><span class="available"><i></i> En stock</span><div class="bike-emblem" aria-hidden="true">MN</div><span class="bike-visual-type">@bike.Category.ToUpperInvariant() · @bike.Condition.ToUpperInvariant()</span></div>
+                        <div class="bike-info"><div class="bike-title"><div><span class="bike-brand">@bike.Brand <i>· @bike.EngineCc cc · @bike.Condition</i></span><h3>@bike.Model</h3></div><span class="year">@bike.Year</span></div>@if (!string.IsNullOrWhiteSpace(bike.Description)) { <p class="description">@bike.Description</p> }<div class="bike-bottom"><div><span class="price-label">PRIX AFFICHÉ</span><div class="price">@bike.Price.ToString("N0") <small>@Model.Business.Currency</small></div></div>
+                        @if (hasWhatsapp) { <a class="button button-orange card-cta" href="https://wa.me/@whatsappDigits?text=@bikeMessage" target="_blank" rel="noopener noreferrer">Demander détails <span>↗</span></a> }
+                        else if (!string.IsNullOrWhiteSpace(phone)) { <a class="button button-orange card-cta" href="tel:@phone">Appeler <span>↗</span></a> }
+                        else if (!string.IsNullOrWhiteSpace(Model.Business.Email)) { <a class="button button-orange card-cta" href="mailto:@Model.Business.Email?subject=@Uri.EscapeDataString($"Moto {bike.Brand} {bike.Model}")">Écrire <span>↗</span></a> }
+                        else { <a class="button button-outline-dark card-cta" href="#contact">Contacter l’équipe <span>↗</span></a> }
+                        </div></div>
+                    </article>
+                }
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.Business.LiveCatalogUrl)) { <details class="live-store"><summary><span><b>Catalogue @Model.Business.Name en direct</b><small>Ouverture du catalogue déjà publié</small></span><strong>Voir le catalogue <i>↘</i></strong></summary><div class="live-store-frame"><iframe src="@Model.Business.LiveCatalogUrl" title="Catalogue de motos @Model.Business.Name" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><p>Catalogue hébergé par la boutique existante. @if (!string.IsNullOrWhiteSpace(Model.Business.OfficialWebsiteUrl)) { <a href="@Model.Business.OfficialWebsiteUrl" target="_blank" rel="noopener noreferrer">Ouvrir le site officiel ↗</a> }</p></details> }
+            <p class="stock-disclaimer">Prix, disponibilité et caractéristiques à confirmer directement auprès de notre équipe. Les photos de modèles ne sont pas fournies pour le moment.</p>
+        </section>
+
+        <section class="manifesto" id="about"><div class="manifesto-orbit" aria-hidden="true">MN</div><div class="manifesto-copy"><span class="eyebrow">02 / NOTRE APPROCHE</span><h2>ON NE VEND PAS<br />QUE DES MOTOS.<br /><em>ON OUVRE DES ROUTES.</em></h2><p>Chez @Model.Business.Name, chaque départ commence par une vraie conversation. Notre équipe vous accompagne pour choisir une moto selon votre budget, votre usage et vos envies. Pas de promesse creuse. Des informations claires et un contact direct.</p><a class="text-link" href="#contact">Rencontrer l’équipe <span>↗</span></a></div><div class="manifesto-side"><span>BASE</span><strong>CASA</strong><small>@Model.Business.City.ToUpperInvariant()<br />MAROC</small></div></section>
+
+        @if (Model.MarketListings.Count > 0)
+        {
+            <section class="market-section section-wrap" aria-labelledby="market-title"><div class="section-heading market-heading"><div><span class="eyebrow">03 / ANNONCES EXTERNES</span><h2 id="market-title">LES REPÈRES<br />DU <em>MARCHÉ.</em></h2><p class="section-intro">Ces annonces de vendeurs tiers ont été relevées à Casablanca. Notre showroom est à @Model.Business.City. Elles servent de repères : vérifiez le prix, les papiers et la disponibilité directement auprès de chaque vendeur.</p></div><div class="market-actions"><a href="https://www.moteur.ma/fr/moto/achat-moto-occasion/?ville=Casablanca" target="_blank" rel="noopener noreferrer">Moteur.ma Casablanca ↗</a><a href="https://www.avito.ma/fr/casablanca/motos-%C3%A0_vendre" target="_blank" rel="noopener noreferrer">Avito Casablanca ↗</a><a href="https://www.facebook.com/marketplace/casablanca/motorcycles/" target="_blank" rel="noopener noreferrer">Marketplace ↗</a></div></div>
+                <div class="market-grid">@foreach (var listing in Model.MarketListings){<article class="market-card"><a class="market-photo @(string.IsNullOrWhiteSpace(listing.ImageUrl) ? "no-photo" : "")" href="@listing.Url" target="_blank" rel="noopener noreferrer" aria-label="Voir l’annonce @listing.Title">@if (!string.IsNullOrWhiteSpace(listing.ImageUrl)){<img src="@listing.ImageUrl" alt="Photo de l’annonce externe : @listing.Title" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.style.display='none';this.parentElement.classList.add('no-photo')" />}<span class="market-photo-label">ANNONCE EXTERNE</span></a><div class="market-card-body"><div class="market-card-top"><span>@listing.Source <i>·</i> @listing.City</span><span>@listing.Published</span></div><h3>@listing.Title</h3><div class="market-details">@listing.Details</div>@if (!string.IsNullOrWhiteSpace(listing.Description)){<p class="market-description">@listing.Description</p>}<div class="market-price">@listing.Price</div>@if (!string.IsNullOrWhiteSpace(listing.Note)){<p class="market-note">@listing.Note</p>}<a class="market-source-link" href="@listing.Url" target="_blank" rel="noopener noreferrer">Voir l’annonce source <span>↗</span></a></div></article>}</div>
+                <p class="market-disclaimer">ANNONCES EXTERNES — elles ne font pas partie du stock @Model.Business.Name. La disponibilité et le prix restent à confirmer avec les vendeurs.</p>
+            </section>
+        }
+
+        <section class="team-section" id="team"><div class="team-heading"><span class="eyebrow">04 / SERVICE & CONFIANCE</span><h2>UN SERVICE<br />PENSÉ POUR <em>VOTRE ROUTE.</em></h2></div><div class="team-grid"><article class="team-card"><div class="team-avatar">01</div><div class="team-role">CONSEIL</div><h3>Choix adapté</h3><p>Présentez votre usage et votre budget. L’équipe vous aide à comparer les motos disponibles.</p></article><article class="team-card"><div class="team-avatar">02</div><div class="team-role">TRANSPARENCE</div><h3>Stock à jour</h3><p>Chaque fiche affiche le prix et les informations enregistrées par le showroom.</p></article><article class="team-card"><div class="team-avatar">03</div><div class="team-role">SUIVI DIRECT</div><h3>Contact simple</h3><p>Envoyez une demande avec la moto choisie et poursuivez l’échange directement avec l’équipe.</p></article></div></section>
+
+        <section class="contact-section" id="contact"><div class="contact-copy"><span class="eyebrow">05 / ON PREND LA ROUTE ?</span><h2>VOTRE PROCHAINE<br />HISTOIRE <em>COMMENCE ICI.</em></h2><p>Parlez-nous de la moto que vous cherchez. On vous répond directement depuis @Model.Business.City.</p><div class="contact-actions">
+            @if (hasWhatsapp) { <a class="button button-orange" href="https://wa.me/@whatsappDigits?text=@Uri.EscapeDataString("Salam, je souhaite en savoir plus sur votre stock de motos.")" target="_blank" rel="noopener noreferrer">Écrire sur WhatsApp <span>↗</span></a> }
+            @if (!string.IsNullOrWhiteSpace(phone)) { <a class="contact-detail" href="tel:@phone">TÉLÉPHONE <strong>@phone</strong></a> }
+            @if (!string.IsNullOrWhiteSpace(Model.Business.Address)) { <div class="contact-detail">NOUS TROUVER <strong>@Model.Business.Address</strong></div> }
+            @if (!string.IsNullOrWhiteSpace(Model.Business.OpeningHours)) { <div class="contact-detail">HORAIRES <strong>@Model.Business.OpeningHours</strong></div> }
+            @if (!string.IsNullOrWhiteSpace(Model.Business.GoogleMapsUrl)) { <a class="contact-detail" href="@Model.Business.GoogleMapsUrl" target="_blank" rel="noopener noreferrer">ITINÉRAIRE <strong>Ouvrir dans Google Maps ↗</strong></a> }
+            @if (!string.IsNullOrWhiteSpace(Model.Business.Email)) { <a class="contact-detail" href="mailto:@Model.Business.Email">E-MAIL <strong>@Model.Business.Email</strong></a> }
+            @if (!hasWhatsapp && string.IsNullOrWhiteSpace(phone) && string.IsNullOrWhiteSpace(Model.Business.Email)) { <p class="contact-config">Les coordonnées du showroom sont à configurer dans le profil de l’entreprise.</p> }
+        </div></div><div class="contact-form-wrap" id="contact-form">
+            @if (Model.InquirySent) { <div class="inquiry-success" role="status"><strong>Merci, votre demande est bien reçue.</strong><span>L’équipe vous recontactera au numéro indiqué. Aucun message ne sera envoyé sans votre demande.</span></div> }
+            <form asp-controller="Showroom" asp-action="SubmitInquiry" method="post" class="customer-inquiry-form">
+                @Html.AntiForgeryToken()
+                <h3>Être recontacté</h3><p>Une demande suffit pour vérifier le stock, demander un prix ou organiser une visite.</p>
+                <div asp-validation-summary="ModelOnly" class="inquiry-errors"></div>
+                <label>Nom complet<input asp-for="Inquiry.Name" autocomplete="name" required maxlength="100" /></label><span asp-validation-for="Inquiry.Name"></span>
+                <label>Téléphone / WhatsApp<input asp-for="Inquiry.Phone" type="tel" autocomplete="tel" placeholder="+212 6…" required maxlength="24" /></label><span asp-validation-for="Inquiry.Phone"></span>
+                <label>E-mail <small>(facultatif)</small><input asp-for="Inquiry.Email" type="email" autocomplete="email" maxlength="254" /></label><span asp-validation-for="Inquiry.Email"></span>
+                <label>Votre demande<select asp-for="Inquiry.Type"><option value="Disponibilité">Vérifier la disponibilité</option><option value="Prix / devis">Demander un prix / devis</option><option value="Rappel">Être rappelé</option><option value="Visite showroom">Organiser une visite</option><option value="Financement">Demander des informations de financement</option><option value="Demande de réservation">Demander une réservation (à confirmer par l’équipe)</option></select></label>
+                <label>Moto concernée<select asp-for="Inquiry.MotorcycleId"><option value="">Je ne sais pas encore</option>@foreach (var bike in Model.Motorcycles) { <option value="@bike.Id">@bike.Brand @bike.Model · @bike.Price.ToString("N0") @Model.Business.Currency</option> }</select></label>
+                <label>Message <small>(facultatif)</small><textarea asp-for="Inquiry.Message" rows="3" maxlength="1200" placeholder="Précisez vos questions ou vos disponibilités."></textarea></label>
+                <label class="inquiry-consent"><input asp-for="Inquiry.ConsentToContact" type="checkbox" required /><span>J’accepte d’être recontacté au sujet de cette demande.</span></label><span asp-validation-for="Inquiry.ConsentToContact"></span>
+                <div class="inquiry-trap" aria-hidden="true"><label>Site web<input asp-for="Inquiry.Website" tabindex="-1" autocomplete="off" /></label></div>
+                <button class="button button-orange" type="submit">Envoyer ma demande <span>↗</span></button>
+                <small class="inquiry-privacy">Vos coordonnées sont utilisées uniquement pour répondre à cette demande.</small>
+            </form>
+        </div></section>
+    </main>
+    @if (hasWhatsapp) { <a class="whatsapp-float" href="https://wa.me/@whatsappDigits?text=@Uri.EscapeDataString("Salam, bghit n3ref l-motos li kaynin f stock.")" target="_blank" rel="noopener noreferrer" aria-label="Contacter @Model.Business.Name sur WhatsApp">WhatsApp <span>↗</span></a> }
+    <footer class="site-footer"><a class="brand" href="#top">@if (!string.IsNullOrWhiteSpace(Model.Business.LogoUrl)) { <img class="brand-logo" src="@Model.Business.LogoUrl" alt="" /> } else { <span class="brand-mark">M<span>✳</span></span> }<span class="brand-name">@Model.Business.Name<small>@Model.Business.City · MAROC</small></span></a><span>© @DateTime.Today.Year @Model.Business.Name · Engineered for Passion. Built for Performance.</span><div class="footer-links">@if (!string.IsNullOrWhiteSpace(Model.Business.InstagramUrl)) { <a href="@Model.Business.InstagramUrl" target="_blank" rel="noopener noreferrer">Instagram ↗</a> }@if (!string.IsNullOrWhiteSpace(Model.Business.TikTokUrl)) { <a href="@Model.Business.TikTokUrl" target="_blank" rel="noopener noreferrer">TikTok ↗</a> }@if (!string.IsNullOrWhiteSpace(Model.Business.FacebookUrl)) { <a href="@Model.Business.FacebookUrl" target="_blank" rel="noopener noreferrer">Facebook ↗</a> }<a asp-controller="Account" asp-action="Login">Espace équipe ↗</a></div></footer>
+    <script src="~/js/showroom.js" asp-append-version="true" defer></script>
+</body>
+</html>
+

@@ -1,0 +1,25 @@
+@startuml
+title Diagramme d'états - Vente
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontColor #17231F
+skinparam ArrowColor #17664F
+skinparam state {
+  BackgroundColor #FFFFFF
+  BorderColor #17664F
+  FontColor #17231F
+  StartColor #17664F
+  EndColor #17664F
+}
+
+[*] --> Active : vente enregistrée
+Active --> Active : consulter / imprimer la facture
+Active --> Annulee : annuler la vente
+Annulee --> Annulee : conserver dans l'historique
+note right of Annulee
+  Le stock est restitué
+  une seule fois.
+  L'annulation est définitive.
+end note
+@enduml
